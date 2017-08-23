@@ -3,6 +3,7 @@ import { Tool } from '../Tool';
 
 export class Rotate implements Tool{
     imageView: ImageView;
+    editingElement: any;
 
     apply(options?: any){
         this.imageView.sprite.rotation += (90 * (Math.PI / 180));
@@ -15,10 +16,14 @@ export class Rotate implements Tool{
         
         requestAnimationFrame(() => {
             this.imageView.backup();
+            requestAnimationFrame(() => 
+                this.imageView.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
+            );
         });
     }
 
     start(imageView: ImageView, editingElement: any){
         this.imageView = imageView;
+        this.editingElement = editingElement;
     }
 }

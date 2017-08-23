@@ -62,6 +62,9 @@ export class Crop implements Tool{
                 setTimeout(() => {
                     this.setHandle();
                     this.imageView.setOverlay();
+                    requestAnimationFrame(() => 
+                        this.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
+                    );
                     requestAnimationFrame(() => {
                         this.imageView.backup();
                     });

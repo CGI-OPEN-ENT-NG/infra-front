@@ -29,6 +29,9 @@ export class ImageView{
                 
                 this.render();
                 this.backup();
+                requestAnimationFrame(() => 
+                    this.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
+                );
                 resolve();
             }, 100);
         });
@@ -36,9 +39,6 @@ export class ImageView{
 
     render(){
         this.renderer.render(this.stage);
-        requestAnimationFrame(() => 
-            this.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
-        );
     }
 
     resetHistory(){

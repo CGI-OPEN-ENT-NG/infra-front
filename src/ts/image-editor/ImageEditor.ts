@@ -58,7 +58,10 @@ export class ImageEditor{
 
     async draw(el: any){
         this.editingElement = el;
-        this.renderer = PIXI.autoDetectRenderer(editorWidth, editorHeight, { preserveDrawingBuffer: true });
+        this.renderer = PIXI.autoDetectRenderer(editorWidth, editorHeight, { 
+            preserveDrawingBuffer: true,
+            transparent: true 
+        });
         await ImageEditor.init();
         el.find('.output').append(this.renderer.view);
     }
