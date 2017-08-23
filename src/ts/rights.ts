@@ -1,4 +1,4 @@
-﻿import { appPrefix, Behaviours, model } from './entcore';
+﻿import { appPrefix, Behaviours, model } from '../../entcore';
 
 export interface Shareable {
     shared: any;

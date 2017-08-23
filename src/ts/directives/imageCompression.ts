@@ -1,0 +1,100 @@
+import { ng } from '../ng-start';
+import { appPrefix } from '../globals';
+
+const canvasWidth = 680;
+const canvasHeight = 400;
+
+export let imageCompression = ng.directive('imageCompression', () => {
+    return {
+        restrict: 'E',
+        templateUrl: '/' + appPrefix + '/public/template/entcore/compression.html',
+        scope: {
+            document: '='
+        },
+        link: (scope, element, attributes) => {
+            const hiddenCanvas = document.createElement('canvas');
+            const canvas = element.find('canvas')[0];
+            canvas.height = canvasHeight;
+            canvas.width = canvasWidth;
+            scope.result = {
+                quality: 1
+            };
+            let blob, hiddenBlob;
+            const ctx:CanvasRenderingContext2D = element.find('canvas')[0].getContext("2d");
+            const hiddenCtx:CanvasRenderingContext2D = hiddenCanvas.getContext("2d");
+            const sourceImage = new Image();
+            const exportImage = new Image();
+            const image = new Image();
+
+            const updateCanvas = (image) => {
+                let top = 0;
+                let width = image.width;
+                let ratio = 1;
+                if(image.width > canvasWidth){
+                    width = canvasWidth;
+                    ratio =  width / image.width;
+                }
+                if(image.height > canvasHeight){
+                    top = ((image.height * ratio) - canvasHeight) / 2
+                }
+                ctx.drawImage(image, 0, top, width, width * image.height / image.width);
+            }
+
+            const compress = (quality: number) => {
+                if(!sourceImage.naturalWidth){
+                    return;
+                }
+                updateCanvas(sourceImage);
+                canvas.toBlob((b) => {
+                    blob = b;
+                    const imageUrl = URL.createObjectURL(blob);
+                    image.src = imageUrl;
+                    image.onload = () => updateCanvas(image);
+                }, 'image/jpeg', scope.result.quality);
+
+                hiddenCanvas.width = sourceImage.width;
+                hiddenCanvas.height = sourceImage.height;
+                hiddenCtx.drawImage(sourceImage, 0, 0);
+                hiddenCanvas.toBlob((b) => {
+                    hiddenBlob = b;
+                    scope.$apply();
+                }, 'image/jpeg', scope.result.quality);
+            }
+
+            const updateImage = () => {
+                sourceImage.src = '/workspace/document/' + scope.document._id;
+                sourceImage.onload = () => {
+                    updateCanvas(sourceImage);
+                    compress(0.7);
+                }
+                scope.result.quality = 0.7;
+            }
+
+            if(scope.document){
+                updateImage();
+            }
+
+            let unit = 'Ko';
+            scope.blobSize = () => {
+                if(!hiddenBlob){
+                    return 0;
+                }
+                unit = 'Ko';
+                const ko = hiddenBlob.size / 1000;
+                const mo = ko / 1000;
+                if(mo >= 1){
+                    unit = 'Mo';
+                    return Math.round(mo * 10) / 10;
+                }
+                return Math.round(ko);
+            }
+
+            scope.blobUnit = () => {
+                return unit;
+            }
+
+            scope.$watch(() => scope.result.quality, () => compress(0.1));
+            scope.$watch('document', () => updateImage());
+        }
+    }
+});

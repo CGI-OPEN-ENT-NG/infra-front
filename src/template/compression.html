@@ -1,0 +1,9 @@
+<canvas></canvas>
+
+<slider ng-model="result.quality" max="1" min="0.15" default="0.7" label="[[blobSize()]] [[blobUnit()]]"></slider>
+<hr class="row" />
+
+<div class="warning" ng-if="blobUnit() === 'Mo' || blobSize() > 500 && blobUnit() === 'Mo'">
+    Attention, fichier volumineux ! Privilégiez des images qui pèsent moins de 500 ko 
+    pour éviter de ralentir le chargement des pages. Utilisez le curseur pour ajuster la taille de l'image.
+</div>

@@ -1,0 +1,17 @@
+<div class="loading-list">
+    <ul>
+        <li ng-repeat="doc in upload.documents" ng-click="display.editedDocument = doc">
+            [[doc.title]]
+            <i class="right-magnet" ng-class="{ 
+                loading: doc.status === 'loading',
+                loaded: doc.status === 'loaded',
+                failed: doc.status === 'failed'
+            }"></i>
+        </li>
+    </ul>
+</div>
+
+<div ng-if="display.editedDocument">
+    <button type="button" class="cancel" ng-click="editImage()">Retoucher l'image</button>
+    <image-compression document="display.editedDocument"></image-compression>
+</div>

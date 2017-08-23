@@ -1,1 +1,1 @@
-export * from './entcore';
+export * from '../../entcore';

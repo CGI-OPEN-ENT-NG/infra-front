@@ -6,19 +6,33 @@ import { ui } from '../ui';
 export let slider = ng.directive('slider', ['$compile', '$parse', function ($compile, $parse) {
     return {
         restrict: 'E',
-        scope: true,
-        template: '<div class="bar"></div><div class="filled"></div><div class="cursor"></div><legend class="min"></legend><legend class="max"></legend>',
+        scope: {
+            min: '@',
+            max: '@',
+            ngModel: '=',
+            label: '@'
+        },
+        template: `
+            <div class="bar"></div>
+            <div class="filled"></div>
+            <div class="cursor"></div>
+            <div class="label">[[label]]</div>
+            <legend class="min"></legend>
+            <legend class="max"></legend>`,
         link: function (scope, element, attributes) {
             element.addClass('drawing-zone');
-            var cursor = element.children('.cursor');
-            var max = parseInt(attributes.max);
-            var min = parseInt(attributes.min);
+            const cursor = element.children('.cursor');
+            const label = element.children('.label');
+            const max = parseInt(attributes.max);
+            const min = parseInt(attributes.min);
 
-            var ngModel = $parse(attributes.ngModel);
-
-            var applyValue = function (newVal) {
+            const applyValue = function (newVal) {
                 var pos = parseInt((newVal - min) * element.children('.bar').width() / (max - min));
                 cursor.css({
+                    left: pos + 'px',
+                    position: 'absolute'
+                });
+                label.css({
                     left: pos + 'px',
                     position: 'absolute'
                 });
@@ -26,16 +40,14 @@ export let slider = ng.directive('slider', ['$compile', '$parse', function ($com
             };
 
             $(window).on('resize', function () {
-                applyValue(ngModel(scope));
+                applyValue(scope.ngModel);
             });
 
-            scope.$watch(function () {
-                return ngModel(scope);
-            }, applyValue);
+            scope.$watch('ngModel', applyValue);
 
-            if (typeof ngModel(scope) !== 'number') {
-                ngModel.assign(scope, parseInt(attributes.default));
-                applyValue(ngModel(scope));
+            if (typeof scope.ngModel !== 'number') {
+                scope.ngModel = attributes.default;
+                applyValue(scope.ngModel);
             }
 
             element.children('legend.min').html(idiom.translate(attributes.minLegend));
@@ -44,7 +56,10 @@ export let slider = ng.directive('slider', ['$compile', '$parse', function ($com
             element.children('.bar, .filled').on('click', function (e) {
                 var newPos = e.clientX - element.children('.bar').offset().left;
                 var newVal = (newPos * (max - min) / element.children('.bar').width()) + min;
-                ngModel.assign(scope, newVal);
+                if(newVal < min){
+                    newVal = min;
+                }
+                scope.ngModel = newVal;
                 scope.$apply();
             });
 
@@ -55,12 +70,16 @@ export let slider = ng.directive('slider', ['$compile', '$parse', function ($com
                 mouseUp: function () {
                     var cursorPosition = cursor.position().left;
                     var newVal = (cursorPosition * (max - min) / element.children('.bar').width()) + min;
-                    ngModel.assign(scope, newVal);
+                    if(newVal < min){
+                        newVal = min;
+                    }
+                    scope.ngModel = newVal;
                     scope.$apply();
                 },
                 tick: function () {
                     var cursorPosition = cursor.position().left;
                     element.children('.filled').width(cursorPosition);
+                    label.css({ left: cursor.position().left + 'px' })
                 }
             });
         }

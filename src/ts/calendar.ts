@@ -1,4 +1,4 @@
-import { model } from './entcore';
+import { model } from '../../entcore';
 
 var moment = require('moment');
 var _ = require('underscore');

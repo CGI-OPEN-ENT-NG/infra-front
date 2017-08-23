@@ -1,0 +1,37 @@
+<section class="tabs">
+    <header 
+        ng-class="{ selected: template.contains('entcore/image-editor/tool', 'entcore/image-editor/rotate') }"
+        ng-click="openTool('Rotate')">
+        Pivoter
+    </header>
+    <header 
+        ng-class="{ selected: template.contains('entcore/image-editor/tool', 'entcore/image-editor/crop') }"
+        ng-click="openTool('Crop')">
+        Rogner
+    </header>
+    <header
+        ng-class="{ selected: template.contains('entcore/image-editor/tool', 'entcore/image-editor/blur') }"
+        ng-click="openTool('Blur')">
+        Flouter
+    </header>
+    <header
+        ng-class="{ selected: template.contains('entcore/image-editor/tool', 'entcore/image-editor/resize') }"
+        ng-click="openTool('Resize')">
+        Redimensionner
+    </header>
+    <header
+        ng-class="{ selected: template.contains('entcore/image-editor/tool', 'entcore/image-editor/properties') }"
+        ng-click="openTool('Properties')">
+        Propriétés
+    </header>
+    <section class="medium-text">
+        <div class="output ten cell"></div>
+        <div class="tools-background two cell"></div>
+        <container template="entcore/image-editor/tool"></container>
+    </section>
+</section>
+
+<div class="row">
+    <button class="cancel" ng-click="restoreOriginal()">Rétablir l'image d'origine</button>
+    <button class="right-magnet"><i18n>save</i18n></button>
+</div>
