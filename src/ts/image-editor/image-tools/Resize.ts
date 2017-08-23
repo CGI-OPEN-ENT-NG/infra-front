@@ -31,10 +31,9 @@ export class Resize implements Tool{
         setTimeout(() => {
             this.handle = editingElement.find('.handle');
             this.imageView.setOverlay();
-            editingElement.find('.output').height(editingElement.find('.output').height();
+            editingElement.find('.output').height(editingElement.find('.output').height());
             editingElement.find('canvas').css({ position: 'absolute' });
             this.resize();
-            
         }, 70);
     }
 }
