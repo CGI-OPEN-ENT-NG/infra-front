@@ -1,8 +1,6 @@
 import { Eventer } from 'entcore-toolkit';
 import { $ } from "../index";
 
-const eventer = new Eventer();
-
 export class ImageView{
     sprite: PIXI.Sprite;
     stage: PIXI.Container;
@@ -10,6 +8,7 @@ export class ImageView{
     history: Blob[] = [];
     editingElement: any;
     historyIndex: number;
+    eventer = new Eventer();
 
     private paint(image: string): Promise<any>{
         return new Promise((resolve, reject) => {
@@ -65,6 +64,7 @@ export class ImageView{
                 } as PIXI.Point;
                 
                 this.render();
+                this.eventer.trigger('image-loaded');
                 resolve();
             }, 100);
         });
@@ -82,15 +82,16 @@ export class ImageView{
             const onload = () => {
                 this.paint(image)
                     .then(() => resolve());
-                eventer.trigger('loaded-' + image);
+                this.eventer.trigger('loaded-' + image);
             };
     
             if(PIXI.loader.resources[image]){
                 if(PIXI.loader.resources[image].isLoading){
-                    eventer.once('loaded-' + image, onload);
+                    this.eventer.once('loaded-' + image, onload);
                     return;
                 }
                 onload();
+                return;
             }
             const loaderOptions = {
                 loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE,

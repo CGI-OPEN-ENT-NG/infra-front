@@ -19,6 +19,7 @@ export const imageEditor = ng.directive('imageEditor', () => {
                 await ImageEditor.init();
                 imageEditor.draw(element);
                 await imageEditor.drawImage(attributes.document);
+                imageEditor.imageView.eventer.on('image-loaded', () => scope.$apply());
                 scope.openTool('Rotate');
                 scope.$apply();
             };
@@ -30,7 +31,8 @@ export const imageEditor = ng.directive('imageEditor', () => {
 
             scope.apply = () => imageEditor.applyChanges();
             scope.restoreOriginal = () => imageEditor.restoreOriginal();
-            scope.hasHistory = () => imageEditor.hasHistory;
+            scope.hasHistory = () => {
+                return imageEditor.hasHistory};
             scope.undo = () => imageEditor.imageView.undo();
 
             attributes.$observe('document', () => start());

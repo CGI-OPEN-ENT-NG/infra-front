@@ -77,12 +77,12 @@ export class Crop implements Tool{
     setHandle(){
         const handle = this.editingElement.find('.handle');
         handle.position({
-            top: 30,
-            left: 30
+            top: 0,
+            left: 0
         });
 
-        handle.width(200);
-        handle.height(150);
+        handle.width(this.outputWidth);
+        handle.height(this.outputHeight);
     }
 
     start(imageView: ImageView, editingElement: any){

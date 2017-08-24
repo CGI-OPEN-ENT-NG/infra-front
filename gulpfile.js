@@ -13,8 +13,9 @@ gulp.task("build", function () {
 });
 
 gulp.task("build-dev", function () {
+    webpack.plugins = [];
     return gulp.src('./')
-        .pipe(webpack(require('./webpack.dev.js')))
+        .pipe(webpack(require('./webpack-dev.config.js')))
         .on('error', function handleError() {
             this.emit('end');
         })

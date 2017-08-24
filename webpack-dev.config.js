@@ -22,11 +22,5 @@ module.exports = {
                 loader: 'awesome-typescript-loader'
             }
         ]
-    },
-    plugins: [
-        new UglifyJSPlugin({
-            sourceMap: true,
-            mangle: false
-        })
-    ]
+    }
 }
