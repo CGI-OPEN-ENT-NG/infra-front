@@ -22,6 +22,8 @@ export class Rotate implements Tool{
         });
     }
 
+    stop(){}
+
     start(imageView: ImageView, editingElement: any){
         this.imageView = imageView;
         this.editingElement = editingElement;

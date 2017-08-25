@@ -49,12 +49,15 @@ export class ImageView{
         return this.historyIndex > 0;
     }
 
-    loadImage(image: HTMLImageElement): Promise<any>{
+    loadImage(image: HTMLImageElement, repaint = true): Promise<any>{
         return new Promise((resolve, reject) => {
             this.stage.removeChildren();
             this.sprite = new PIXI.Sprite(PIXI.Texture.from(image));
             this.stage.addChild(this.sprite);
             this.renderer.render(this.stage);
+            if(!repaint){
+                return;
+            }
             setTimeout(() => {
                 this.sprite.pivot.set(this.sprite.width / 2, this.sprite.height / 2);
                 this.renderer.resize(this.sprite.width, this.sprite.height);
@@ -103,12 +106,12 @@ export class ImageView{
         });
     }
 
-    loadBlob(blob: Blob){
+    loadBlob(blob: Blob, repaint = true){
         const imageUrl = URL.createObjectURL(blob);
         const image = new Image();
         image.src = imageUrl;
         image.onload = () => {
-            this.loadImage(image);
+            this.loadImage(image, repaint);
         };
     }
 
@@ -117,12 +120,12 @@ export class ImageView{
         this.loadBlob(this.history[this.history.length - 2]);
     }
 
-    backup(){
+    backup(repaint = true){
         this.renderer.view.toBlob((blob) => {
             this.historyIndex ++;
             this.history.splice(this.historyIndex);
             this.history.push(blob);
-            this.loadBlob(blob);
+            this.loadBlob(blob, repaint);
         }, 'image/jpeg', 1);
     }
 }

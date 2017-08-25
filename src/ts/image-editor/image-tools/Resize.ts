@@ -27,20 +27,17 @@ export class Resize implements Tool{
 
     apply(options?: any){
         this.imageView.renderer.resize(this.imageView.sprite.width, this.imageView.sprite.height);
-        this.imageView.sprite.width = this.imageView.renderer.width;
-        this.imageView.sprite.height = this.imageView.renderer.height;
+
         this.imageView.sprite.position = {
             x: this.imageView.sprite.width / 2,
             y: this.imageView.sprite.height / 2
         } as PIXI.Point;
 
         this.imageView.render();
-        setTimeout(async () => {
-            await this.imageView.backup();
-            setTimeout(() => {
-                this.start(this.imageView, this.editingElement);
-            }, 30)
-        }, 30);
+        requestAnimationFrame(async () => {
+            await this.imageView.backup(false);
+            this.setup();
+        });
     }
 
     resize(){
@@ -53,8 +50,8 @@ export class Resize implements Tool{
 
     setHandle(){
         this.handle = this.editingElement.find('.handle');
-        this.handle.width(this.imageView.sprite.width / this.widthRatio);
-        this.handle.height(this.imageView.sprite.height / this.heightRatio);
+        this.handle.width(this.imageView.sprite.width / this.widthRatio - 2);
+        this.handle.height(this.imageView.sprite.height / this.heightRatio - 2);
         this.handle.css({ 
             top: ((this.imageView.sprite.position.y - this.imageView.sprite.height / 2) / this.heightRatio) + 'px', 
             left: ((this.imageView.sprite.position.x - this.imageView.sprite.width / 2) / this.widthRatio) + 'px'
@@ -66,6 +63,40 @@ export class Resize implements Tool{
 
         this.widthRatio =  this.imageView.renderer.width / this.editingElement.find('canvas').width();
         this.heightRatio = this.imageView.renderer.height / this.editingElement.find('canvas').height();
+    }
+
+    setup(){
+        requestAnimationFrame(() => {
+            this.imageView.setOverlay();
+            
+            if(this.imageView.renderer.width < this.outputWidth || this.imageView.renderer.height < this.outputHeight){
+                this.imageView.renderer.resize(this.outputWidth, this.outputHeight);
+                requestAnimationFrame(() => {
+                    this.imageView.sprite.position = {
+                        x: this.imageView.renderer.width / 2,
+                        y: this.imageView.renderer.height / 2
+                    } as PIXI.Point;
+                    this.imageView.sprite.pivot.set(this.imageView.sprite.width / 2, this.imageView.sprite.height / 2);
+                    this.imageView.render();
+                });
+                
+                this.imageView.render();
+            }
+            
+            requestAnimationFrame(() => {
+                this.lockOutput();
+                this.setHandle();
+            });
+        });
+    }
+
+    stop(){
+        this.imageView.sprite.pivot.set(this.imageView.sprite.width / 2, this.imageView.sprite.height / 2);
+        this.imageView.renderer.resize(this.imageView.sprite.width, this.imageView.sprite.height);
+        this.imageView.sprite.position = {
+            x: this.imageView.sprite.width / 2,
+            y: this.imageView.sprite.height / 2
+        } as PIXI.Point;
     }
 
     start(imageView: ImageView, editingElement: any){
@@ -80,23 +111,6 @@ export class Resize implements Tool{
             animate();
         });
         editingElement.on('stopResize', '.handle', () => cancelAnimationFrame(token));
-
-        setTimeout(() => {
-            this.imageView.setOverlay();
-            
-            if(this.imageView.renderer.width < this.outputWidth || this.imageView.renderer.height < this.outputHeight){
-                this.imageView.renderer.resize(this.outputWidth, this.outputHeight);
-                this.imageView.sprite.position = {
-                    x: this.imageView.renderer.width / 2 - this.imageView.sprite.width / 2,
-                    y: this.imageView.renderer.height / 2 - this.imageView.sprite.height / 2
-                } as PIXI.Point;
-                this.imageView.render();
-            }
-            
-            setTimeout(() => {
-                this.lockOutput();
-                this.setHandle();
-            }, 30);
-        }, 70);
+        this.setup();
     }
 }

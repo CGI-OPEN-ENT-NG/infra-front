@@ -22,6 +22,8 @@ export class Crop implements Tool{
         return parseInt($(this.imageView.renderer.view).position().top);
     }
 
+    stop(){}
+
     apply(options?: any){
         const handle = this.editingElement.find('.handle');
         

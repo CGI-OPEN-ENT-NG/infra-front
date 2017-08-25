@@ -119,7 +119,7 @@ export class Document implements Selectable {
 
 		this.version = parseInt(Math.random() * 100);
 		this.link = '/workspace/document/' + this._id;
-		if(this.metadata.role === 'img'){
+		if(this.metadata && this.metadata.role === 'img'){
 			this.icon = this.link;
 		}
 		this.revisions = [];
@@ -181,6 +181,12 @@ export class Document implements Selectable {
                 resolve(Mix.castAs(Document, data));
             });
         });
+    }
+
+    async update(blob: Blob){
+        const formData = new FormData();
+        formData.append('file', blob);
+        await http.put('/workspace/document/' + this._id, formData);
     }
 
     static role(fileType) {

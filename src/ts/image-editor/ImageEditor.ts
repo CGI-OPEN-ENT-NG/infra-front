@@ -3,6 +3,7 @@ import { Eventer } from 'entcore-toolkit';
 import { ImageView } from './ImageView';
 import * as imageTools from './image-tools';
 import { Tool } from './Tool';
+import { Document } from '../workspace';
 
 const eventer = new Eventer();
 const editorWidth = 680;
@@ -15,6 +16,7 @@ export class ImageEditor{
     renderer: PIXI.CanvasRenderer | PIXI.WebGLRenderer;
     editingElement: any;
     tool: Tool;
+    document: Document;
 
     constructor(){
 
@@ -29,6 +31,11 @@ export class ImageEditor{
 
     applyChanges(options?){
         this.tool.apply(options);
+    }
+
+    async saveChanges(){
+        await this.imageView.backup();
+        await this.document.update(this.imageView.history[this.imageView.history.length - 1]);
     }
 
     get hasHistory(){
@@ -66,8 +73,9 @@ export class ImageEditor{
         el.find('.output').append(this.renderer.view);
     }
 
-    async drawImage(image: string){
-        await this.imageView.load(image, this.renderer, this.editingElement);
+    async drawDocument(document: Document){
+        await this.imageView.load('/workspace/document/' + document._id, this.renderer, this.editingElement);
+        this.document = document;
     }
 
     async restoreOriginal(){

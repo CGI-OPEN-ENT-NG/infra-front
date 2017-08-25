@@ -2,6 +2,8 @@ import { ng } from '../ng-start';
 import { appPrefix } from '../globals';
 import { ImageEditor } from '../image-editor/ImageEditor';
 import { template } from '../template';
+import { Mix } from "entcore-toolkit";
+import { Document } from '../workspace';
 
 export const imageEditor = ng.directive('imageEditor', () => {
     return {
@@ -18,7 +20,7 @@ export const imageEditor = ng.directive('imageEditor', () => {
             const start = async () => {
                 await ImageEditor.init();
                 imageEditor.draw(element);
-                await imageEditor.drawImage(attributes.document);
+                await imageEditor.drawDocument(Mix.castAs(Document, { _id: attributes.document }));
                 imageEditor.imageView.eventer.on('image-loaded', () => scope.$apply());
                 scope.openTool('Rotate');
                 scope.$apply();
@@ -34,6 +36,7 @@ export const imageEditor = ng.directive('imageEditor', () => {
             scope.hasHistory = () => {
                 return imageEditor.hasHistory};
             scope.undo = () => imageEditor.imageView.undo();
+            scope.save = () => imageEditor.saveChanges();
 
             attributes.$observe('document', () => start());
         }

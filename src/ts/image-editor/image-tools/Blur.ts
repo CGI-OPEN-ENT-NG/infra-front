@@ -2,7 +2,7 @@ import { ImageView } from '../ImageView';
 import { Tool } from '../Tool';
 import { $ } from "../../index";
 
-const brushSize = 30;
+const brushSize = 20;
 
 export class Blur implements Tool{
     widthRatio: number;
@@ -66,6 +66,8 @@ export class Blur implements Tool{
         newSprite.addChild(newSprite.mask)
         this.imageView.render();
     }
+
+    stop(){}
 
     start(imageView: ImageView, editingElement: any){
         this.imageView = imageView;
