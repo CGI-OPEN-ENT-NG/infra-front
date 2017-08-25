@@ -33,7 +33,6 @@ export class Blur implements Tool{
 
     blurAt(){
         const texture = PIXI.Texture.fromImage(this.imageView.sprite.texture.baseTexture.imageUrl);
-        
         const rect = new PIXI.Rectangle(
             this.mouse.x - (brushSize * this.widthRatio),
             this.mouse.y - (brushSize * this.heightRatio),

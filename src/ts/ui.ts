@@ -453,6 +453,8 @@ export let ui = {
                     return;
                 }
 
+                const borderWidth:number = parseInt(element.css('border-width'));
+
                 $('body').css({
                     '-webkit-user-select': 'none',
                     '-moz-user-select': 'none',
@@ -534,7 +536,7 @@ export let ui = {
                             else {
                                 var distance = mouse.x - p.left;
                                 if (element.offset().left + distance > parentData.pos.left + parentData.size.width) {
-                                    distance = (parentData.pos.left + parentData.size.width) - element.offset().left - 2;
+                                    distance = (parentData.pos.left + parentData.size.width) - element.offset().left - borderWidth * 2;
                                 }
                                 newWidth = distance;
                             }
@@ -561,7 +563,7 @@ export let ui = {
                             else {
                                 var distance = mouse.y - p.top;
                                 if (element.offset().top + distance > parentData.pos.top + parent.height()) {
-                                    distance = (parentData.pos.top + parentData.size.height) - element.offset().top - 2;
+                                    distance = (parentData.pos.top + parentData.size.height) - element.offset().top - borderWidth * 2;
                                 }
                                 newHeight = distance;
                             }
@@ -630,7 +632,7 @@ export let ui = {
                 let initialScroll = $(window).scrollTop();
                 let interrupt = false;
                 if (element.data('resizing') !== true) {
-
+                    const borderWidth = parseInt(element.css('border-width'));
                     let mouse = {
                         y: e.clientY || e.originalEvent.touches[0].clientY,
                         x: e.clientX || e.originalEvent.touches[0].clientX
@@ -704,13 +706,13 @@ export let ui = {
                             newOffset.left = boundaries.left;
                         }
                         if (mouse.x > boundaries.right + elementDistance.x && elementWidth < parentWidth) {
-                            newOffset.left = boundaries.right - 2
+                            newOffset.left = boundaries.right - borderWidth * 2;
                         }
                         if (mouse.y + ((window.scrollY || window.pageYOffset) - initialScroll) < boundaries.top + elementDistance.y && elementHeight < parentHeight) {
                             newOffset.top = boundaries.top;
                         }
                         if (mouse.y + ((window.scrollY || window.pageYOffset) - initialScroll) > boundaries.bottom + elementDistance.y && elementHeight < parentHeight) {
-                            newOffset.top = boundaries.bottom - 2;
+                            newOffset.top = boundaries.bottom - borderWidth * 2;
                         }
 
                         if (params.lock && params.lock.vertical) {

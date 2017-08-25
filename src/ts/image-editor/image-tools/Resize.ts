@@ -50,8 +50,8 @@ export class Resize implements Tool{
 
     setHandle(){
         this.handle = this.editingElement.find('.handle');
-        this.handle.width(this.imageView.sprite.width / this.widthRatio - 2);
-        this.handle.height(this.imageView.sprite.height / this.heightRatio - 2);
+        this.handle.width(this.imageView.sprite.width / this.widthRatio - 4);
+        this.handle.height(this.imageView.sprite.height / this.heightRatio - 4);
         this.handle.css({ 
             top: ((this.imageView.sprite.position.y - this.imageView.sprite.height / 2) / this.heightRatio) + 'px', 
             left: ((this.imageView.sprite.position.x - this.imageView.sprite.width / 2) / this.widthRatio) + 'px'
@@ -111,6 +111,6 @@ export class Resize implements Tool{
             animate();
         });
         editingElement.on('stopResize', '.handle', () => cancelAnimationFrame(token));
-        this.setup();
+        setTimeout(() => this.setup(), 40);
     }
 }

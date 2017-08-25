@@ -41,50 +41,41 @@ export class Crop implements Tool{
             height = this.outputHeight;
         }
 
-        this.imageView.renderer.view.toBlob((blob) => {
-            const imageUrl = URL.createObjectURL(blob);
-            const image = new Image();
-            image.src = imageUrl;
-            image.onload = () => {
-                const newTexture = PIXI.Texture.from(image);
-                this.imageView.stage.removeChildren();
-                const cropped = new PIXI.Texture(
-                    newTexture.baseTexture, new PIXI.Rectangle(
-                        x * (this.imageView.renderer.width / this.outputWidth),
-                        y * (this.imageView.renderer.height / this.outputHeight), 
-                        width * (this.imageView.renderer.width / this.outputWidth), 
-                        height * (this.imageView.renderer.height / this.outputHeight)
-                    )
-                );
-                this.imageView.sprite = new PIXI.Sprite(cropped);
-                this.imageView.stage.addChild(this.imageView.sprite);
-                this.imageView.renderer.resize(this.imageView.sprite.width, this.imageView.sprite.height);
-                this.imageView.render();
+        const texture = PIXI.Texture.fromImage(this.imageView.sprite.texture.baseTexture.imageUrl);
+        this.imageView.stage.removeChildren();
+        const cropped = new PIXI.Texture(
+            texture.baseTexture, new PIXI.Rectangle(
+                x * (this.imageView.renderer.width / this.outputWidth),
+                y * (this.imageView.renderer.height / this.outputHeight), 
+                width * (this.imageView.renderer.width / this.outputWidth), 
+                height * (this.imageView.renderer.height / this.outputHeight)
+            )
+        );
+        this.imageView.sprite = new PIXI.Sprite(cropped);
+        this.imageView.stage.addChild(this.imageView.sprite);
+        this.imageView.renderer.resize(this.imageView.sprite.width, this.imageView.sprite.height);
+        this.imageView.render();
 
-                setTimeout(() => {
-                    this.setHandle();
-                    this.imageView.setOverlay();
-                    requestAnimationFrame(() => 
-                        this.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
-                    );
-                    requestAnimationFrame(() => {
-                        this.imageView.backup();
-                    });
-                }, 50);
-                
-            };
-        }, 'image/jpeg', 1);
+        requestAnimationFrame(async () => {
+            await this.imageView.backup();
+            this.imageView.render();
+            requestAnimationFrame(() => {
+                this.setHandle();
+                this.imageView.setOverlay();
+                this.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
+            });
+        });
     }
 
     setHandle(){
         const handle = this.editingElement.find('.handle');
-        handle.position({
-            top: 0,
-            left: 0
+        handle.css({
+            top: "0px",
+            left: "0px"
         });
 
-        handle.width(this.outputWidth);
-        handle.height(this.outputHeight);
+        handle.width(this.outputWidth - 4);
+        handle.height(this.outputHeight - 4);
     }
 
     start(imageView: ImageView, editingElement: any){
