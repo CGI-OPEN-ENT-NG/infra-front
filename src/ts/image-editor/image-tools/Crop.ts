@@ -26,12 +26,25 @@ export class Crop implements Tool{
 
     apply(options?: any){
         const handle = this.editingElement.find('.handle');
+        let width = handle.width();
+        if(handle.width() > this.outputWidth){
+            width = handle.width() - (this.outputLeft - handle.position().left);
+        }
         
-        let width = handle.width() - this.outputLeft;
-        let height = handle.height() - this.outputTop;
+        let height = handle.height();
+        if(handle.height() > this.outputHeight){
+            height = handle.height() - (this.outputHeight - handle.position().top);
+        }
 
         let x = handle.position().left - this.outputLeft;
         let y = handle.position().top - this.outputTop;
+
+        if(x > this.outputWidth || y > this.outputHeight){
+            return;
+        }
+
+        if(x < 0){ x = 0; }
+        if(y < 0){ y = 0; }
 
         if(width > this.outputWidth){
             width = this.outputWidth;

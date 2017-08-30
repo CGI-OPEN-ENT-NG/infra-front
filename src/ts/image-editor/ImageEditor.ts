@@ -34,7 +34,6 @@ export class ImageEditor{
     }
 
     async saveChanges(){
-        await this.imageView.backup();
         await this.document.update(this.imageView.history[this.imageView.history.length - 1]);
     }
 
@@ -74,7 +73,7 @@ export class ImageEditor{
     }
 
     async drawDocument(document: Document){
-        await this.imageView.load('/workspace/document/' + document._id, this.renderer, this.editingElement);
+        await this.imageView.load('/workspace/document/' + document._id + '?v=' + parseInt(Math.random() * 100), this.renderer, this.editingElement);
         this.document = document;
     }
 

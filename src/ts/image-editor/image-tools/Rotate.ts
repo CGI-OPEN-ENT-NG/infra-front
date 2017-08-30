@@ -6,6 +6,7 @@ export class Rotate implements Tool{
     editingElement: any;
 
     apply(options?: any){
+        this.editingElement.find('.tools button').attr('disabled', true);
         this.imageView.sprite.rotation += (90 * (Math.PI / 180));
         this.imageView.renderer.resize(this.imageView.sprite.height, this.imageView.sprite.width);
         this.imageView.sprite.position = {
@@ -14,10 +15,11 @@ export class Rotate implements Tool{
         } as PIXI.Point;
         this.imageView.render();
         
-        requestAnimationFrame(() => {
-            this.imageView.backup();
-            requestAnimationFrame(() => 
-                this.imageView.editingElement.find('.tools-background').height(this.editingElement.find('.output').height())
+        requestAnimationFrame(async () => {
+            await this.imageView.backup();
+            this.editingElement.find('.tools button').attr('disabled', false);
+            this.imageView.editingElement.find('.tools-background').height(
+                this.editingElement.find('.output').height()
             );
         });
     }

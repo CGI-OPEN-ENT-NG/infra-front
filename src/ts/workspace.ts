@@ -76,7 +76,8 @@ export class Document implements Selectable {
     metadata: {
         'content-type': string,
 		role: string,
-		extension: string
+        extension: string,
+        filename: string
     };
 	version: number;
 	link: string;
@@ -185,8 +186,8 @@ export class Document implements Selectable {
 
     async update(blob: Blob){
         const formData = new FormData();
-        formData.append('file', blob);
-        await http.put('/workspace/document/' + this._id, formData);
+        formData.append('file', blob, this._id);
+        await http.put('/workspace/document/' + this._id + '?' + MediaLibrary.thumbnails, formData);
     }
 
     static role(fileType) {

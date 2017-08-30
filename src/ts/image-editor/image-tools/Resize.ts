@@ -6,15 +6,21 @@ export class Resize implements Tool{
     imageView: ImageView;
     editingElement: any;
     handle: any;
-    widthRatio: number;
-    heightRatio: number;
+    isResizing: boolean;
 
-    get canvasLeft(): number{
-        return this.editingElement.find('canvas').position().left;
-    }
-
-    get canvasTop(): number{
-        return this.editingElement.find('canvas').position().top;
+    get scale(): number{
+        if(this.imageView.sprite.width > this.imageView.sprite.height){
+            let scale = this.outputWidth / this.imageView.sprite.width;
+            if(scale > 1){
+                return 1;
+            }
+            return scale;
+        }
+        let scale = this.outputHeight / this.imageView.sprite.height;
+        if(scale > 1){
+            return 1;
+        }
+        return scale;
     }
 
     get outputWidth(): number{
@@ -26,62 +32,70 @@ export class Resize implements Tool{
     }
 
     apply(options?: any){
-        this.imageView.renderer.resize(this.imageView.sprite.width, this.imageView.sprite.height);
-
-        this.imageView.sprite.position = {
-            x: this.imageView.sprite.width / 2,
-            y: this.imageView.sprite.height / 2
-        } as PIXI.Point;
-
+        this.imageView.sprite.scale = new PIXI.Point(1, 1);
         this.imageView.render();
-        requestAnimationFrame(async () => {
-            await this.imageView.backup(false);
-            this.setup();
+        requestAnimationFrame(() => {
+            this.imageView.renderer.resize(
+                this.handle.width() * (this.imageView.sprite.width / this.outputWidth), 
+                this.handle.height() * (this.imageView.sprite.height / this.outputHeight)
+            );
+            requestAnimationFrame(() => {
+                this.imageView.sprite.width = this.handle.width() * (this.imageView.sprite.width / this.outputWidth);
+                this.imageView.sprite.height = this.handle.height() * (this.imageView.sprite.height / this.outputHeight);
+
+                this.imageView.sprite.position = {
+                    x: this.imageView.sprite.width / 2,
+                    y: this.imageView.sprite.height / 2
+                } as PIXI.Point;
+        
+                this.imageView.render();
+
+                requestAnimationFrame(async () => {
+                    await this.imageView.backup(false);
+                    this.setup();
+                });
+            });
         });
     }
 
     resize(){
-        this.imageView.sprite.width = this.handle.width() * this.widthRatio;
-        this.imageView.sprite.height = this.handle.height() * this.heightRatio;
-        this.imageView.sprite.position.x = ((this.handle.position().left + 2 - this.canvasLeft)  * this.widthRatio) + this.imageView.sprite.width / 2;
-        this.imageView.sprite.position.y = ((this.handle.position().top + 2 - this.canvasTop)  * this.heightRatio) + this.imageView.sprite.height / 2;
+        this.imageView.sprite.width = this.handle.width();
+        this.imageView.sprite.height = this.handle.height();
+        this.imageView.sprite.position.x = (this.handle.position().left + 2) + this.imageView.sprite.width / 2;
+        this.imageView.sprite.position.y = (this.handle.position().top + 2) + this.imageView.sprite.height / 2;
         this.imageView.render();
     }
 
     setHandle(){
         this.handle = this.editingElement.find('.handle');
-        this.handle.width(this.imageView.sprite.width / this.widthRatio - 4);
-        this.handle.height(this.imageView.sprite.height / this.heightRatio - 4);
+        this.handle.width(this.imageView.sprite.width - 4);
+        this.handle.height(this.imageView.sprite.height - 4);
         this.handle.css({ 
-            top: ((this.imageView.sprite.position.y - this.imageView.sprite.height / 2) / this.heightRatio) + 'px', 
-            left: ((this.imageView.sprite.position.x - this.imageView.sprite.width / 2) / this.widthRatio) + 'px'
+            top: (this.imageView.sprite.position.y - this.imageView.sprite.height / 2) + 'px', 
+            left: (this.imageView.sprite.position.x - this.imageView.sprite.width / 2) + 'px'
         });
     }
 
     lockOutput(){
         this.editingElement.find('.output').height(this.editingElement.find('.output').height());
-
-        this.widthRatio =  this.imageView.renderer.width / this.editingElement.find('canvas').width();
-        this.heightRatio = this.imageView.renderer.height / this.editingElement.find('canvas').height();
     }
 
     setup(){
         requestAnimationFrame(() => {
             this.imageView.setOverlay();
-            
-            if(this.imageView.renderer.width < this.outputWidth || this.imageView.renderer.height < this.outputHeight){
-                this.imageView.renderer.resize(this.outputWidth, this.outputHeight);
-                requestAnimationFrame(() => {
-                    this.imageView.sprite.position = {
-                        x: this.imageView.renderer.width / 2,
-                        y: this.imageView.renderer.height / 2
-                    } as PIXI.Point;
-                    this.imageView.sprite.pivot.set(this.imageView.sprite.width / 2, this.imageView.sprite.height / 2);
-                    this.imageView.render();
-                });
+            this.imageView.renderer.resize(this.outputWidth, this.outputHeight);
+            this.imageView.sprite.pivot.set(this.imageView.sprite.width / 2, this.imageView.sprite.height / 2);
+            requestAnimationFrame(() => {
+                this.imageView.sprite.scale = new PIXI.Point(this.scale, this.scale);
+                this.imageView.sprite.position = {
+                    x: this.imageView.renderer.width / 2,
+                    y: this.imageView.renderer.height / 2
+                } as PIXI.Point;
                 
                 this.imageView.render();
-            }
+            });
+            
+            this.imageView.render();
             
             requestAnimationFrame(() => {
                 this.lockOutput();
@@ -104,13 +118,20 @@ export class Resize implements Tool{
         this.editingElement = editingElement;
         let token;
         const animate = () => {
+            if(!this.isResizing){
+                return;
+            }
             this.resize();
             token = requestAnimationFrame(animate);
         }
         editingElement.on('startResize', '.handle', () => {
+            this.isResizing = true;
             animate();
         });
-        editingElement.on('stopResize', '.handle', () => cancelAnimationFrame(token));
-        setTimeout(() => this.setup(), 40);
+        editingElement.on('stopResize', '.handle', () => {
+            this.isResizing = false;
+            cancelAnimationFrame(token);
+        });
+        setTimeout(() => this.setup(), 60);
     }
 }

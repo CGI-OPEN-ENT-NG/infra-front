@@ -106,13 +106,15 @@ export class ImageView{
         });
     }
 
-    loadBlob(blob: Blob, repaint = true){
-        const imageUrl = URL.createObjectURL(blob);
-        const image = new Image();
-        image.src = imageUrl;
-        image.onload = () => {
-            this.loadImage(image, repaint);
-        };
+    loadBlob(blob: Blob, repaint = true): Promise<any>{
+        return new Promise((resolve, reject) => {
+            const imageUrl = URL.createObjectURL(blob);
+            const image = new Image();
+            image.src = imageUrl;
+            image.onload = () => {
+                this.loadImage(image, repaint).then(() => resolve());
+            };
+        });
     }
 
     undo(){
@@ -120,12 +122,16 @@ export class ImageView{
         this.loadBlob(this.history[this.history.length - 2]);
     }
 
-    backup(repaint = true){
-        this.renderer.view.toBlob((blob) => {
-            this.historyIndex ++;
-            this.history.splice(this.historyIndex);
-            this.history.push(blob);
-            this.loadBlob(blob, repaint);
-        }, 'image/jpeg', 1);
+    backup(repaint = true): Promise<any>{
+        return new Promise((resolve, reject) => {
+            this.renderer.view.toBlob((blob) => {
+                this.historyIndex ++;
+                this.history.splice(this.historyIndex);
+                this.history.push(blob);
+                this.loadBlob(blob, repaint).then(() => {
+                    resolve();
+                })
+            }, 'image/jpeg', 1);
+        });
     }
 }

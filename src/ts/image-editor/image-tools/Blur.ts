@@ -9,6 +9,7 @@ export class Blur implements Tool{
     heightRatio: number;
     imageView: ImageView;
     mouse: { x: number, y: number } = { x: 0, y: 0 };
+    isBlurring: boolean;
 
     drawBrush(): PIXI.Graphics{
         const brush = new PIXI.Graphics();
@@ -73,6 +74,9 @@ export class Blur implements Tool{
 
         let token;
         const animate = () => {
+            if(!this.isBlurring){
+                return;
+            }
             this.blurAt();
             token = requestAnimationFrame(animate);
         }
@@ -85,7 +89,9 @@ export class Blur implements Tool{
                 x: (e.pageX - this.outputLeft)  * this.widthRatio,
                 y: (e.pageY - this.outputTop) * this.heightRatio
             }
+            this.isBlurring = true;
             animate();
+            
             $(window).on('mousemove.blur', (e) => {
                 this.mouse = {
                     x: (e.pageX - this.outputLeft)  * this.widthRatio,
@@ -97,7 +103,8 @@ export class Blur implements Tool{
                 $(window).off('mousemove.blur mouseup.blur touchend.blur')
                 cancelAnimationFrame(token);
                 this.imageView.backup();
-            })
+                this.isBlurring = false;
+            });
         });
     }
 }
