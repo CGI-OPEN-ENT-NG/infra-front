@@ -164,10 +164,10 @@ export const mediaLibrary = ng.directive('mediaLibrary', function(){
 				if((scope.folder === MediaLibrary.appDocuments && scope.visibility === 'protected') ||
 					(scope.folder === MediaLibrary.publicDocuments && scope.visibility === 'public')){
 					if(scope.multiple){
-						scope.$parent.ngModel = [document];
+						scope.ngModel = [document];
 					}
 					else{
-						scope.$parent.ngModel = document;
+						scope.ngModel = document;
 					}
 				}
 				else{
@@ -179,12 +179,12 @@ export const mediaLibrary = ng.directive('mediaLibrary', function(){
 						copyFn.call(document, function(newFile){
 						scope.display.loading = [];
 						if(scope.multiple){
-							scope.$parent.ngModel = [newFile];
-							scope.$parent.$apply();
+							scope.ngModel = [newFile];
+							scope.$apply();
 						}
 						else{
-							scope.$parent.ngModel = newFile;
-							scope.$parent.$apply();
+							scope.ngModel = newFile;
+							scope.$apply();
 						}
 					});
 				}
@@ -194,7 +194,7 @@ export const mediaLibrary = ng.directive('mediaLibrary', function(){
 				var selectedDocuments = scope.documents.filter(d => d.selected);
 				if((scope.folder === MediaLibrary.appDocuments && scope.visibility === 'protected') ||
 					(scope.folder === MediaLibrary.publicDocuments && scope.visibility === 'public')){
-					scope.$parent.ngModel = selectedDocuments;
+					scope.ngModel = selectedDocuments;
 				}
 				else{
 					var duplicateDocuments = [];
@@ -211,8 +211,8 @@ export const mediaLibrary = ng.directive('mediaLibrary', function(){
 							duplicateDocuments.push(newFile);
 							documentsCount++;
 							if(documentsCount === selectedDocuments.length){
-								scope.$parent.ngModel = duplicateDocuments;
-								scope.$parent.$apply();
+								scope.ngModel = duplicateDocuments;
+								scope.$apply();
 							}
 						});
 					})

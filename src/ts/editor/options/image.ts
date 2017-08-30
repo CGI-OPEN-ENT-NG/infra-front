@@ -2,7 +2,7 @@ import { ui } from '../../ui';
 import { $ } from '../../libs/jquery/jquery';
 
 
-const showImageContextualMenu = (refElement) => {
+const showImageContextualMenu = (refElement, scope) => {
     const imageMenu = $(`
         <div class="image-contextual-menu" style="z-index: 15">
             <button>Retoucher</button>
@@ -44,7 +44,29 @@ const showImageContextualMenu = (refElement) => {
         left: refElement.offset().left + 5
     })
     .on('click', 'button', () => {
-        
+        const urlParts = image.attr('src').split('/');
+        scope.imageOption.display.file = urlParts[urlParts.length - 1].split('?')[0];
+        scope.imageOption.display.editFile = true;
+        scope.updateImage = () => {
+            let src = image.attr('src');
+            scope.imageOption.display.editFile = false;
+            if(src.indexOf('?') !== -1){
+                if(src.indexOf('v=') !== -1){
+                    let v = parseInt(src.split('v=')[1].split('&')[0]);
+                    v++;
+                    src = src.replace(/(v=).*?(&|$)/,'$1' + v + '$2');
+                }
+                else{
+                    src += '&v=1';
+                }
+            }
+            else{
+                src += '?v=1';
+            }
+
+            image.attr('src', src);
+        }
+        scope.$apply();
     })
     .on('click', 'i.small', () => {
         image.attr('src', image.attr('src').split('?')[0] + '?thumbnail=150x150');
@@ -64,7 +86,13 @@ const showImageContextualMenu = (refElement) => {
             if(imageMenu.find(e.target).length === 0){
                 imageMenu.remove();
             }
-        })
+        });
+
+        $(document).one('keydown', (e) => {
+            if(!$('body').find(image).length){
+                imageMenu.remove();
+            }
+        });
     }, 0);
 }
 
@@ -73,10 +101,15 @@ export const image = {
     run: function(instance){
         return {
             template: '<i ng-click="imageOption.display.pickFile = true" tooltip="editor.option.image"></i>' +
+            '<div ng-if="imageOption.display.editFile">'+
+                '<lightbox show="imageOption.display.editFile">' +
+                    '<image-editor document="[[imageOption.display.file]]" on-save="updateImage()"></image-editor>' +
+                '</lightbox>' +
+            '</div>' +
             '<div ng-if="imageOption.display.pickFile">' +
-            '<lightbox show="imageOption.display.pickFile" on-close="imageOption.display.pickFile = false;">' +
-            '<media-library ng-change="updateContent()" multiple="true" ng-model="imageOption.display.files" file-format="\'img\'" visibility="imageOption.visibility"></media-library>' +
-            '</lightbox>' +
+                '<lightbox show="imageOption.display.pickFile">' +
+                    '<media-library ng-change="updateContent()" multiple="true" ng-model="imageOption.display.files" file-format="\'img\'" visibility="imageOption.visibility"></media-library>' +
+                '</lightbox>' +
             '</div>',
             link: function (scope, element, attributes) {
                 instance.editZone.on('click', 'img', (e) => {
@@ -97,7 +130,7 @@ export const image = {
                     const newRange = new Range();
                     newRange.selectNode(parentSpan[0]);
                     sel.addRange(newRange);
-                    showImageContextualMenu(parentSpan);
+                    showImageContextualMenu(parentSpan, scope);
                 });
 
                 ui.extendSelector.touchEvents('[contenteditable] img');

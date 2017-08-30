@@ -317,7 +317,10 @@ export class MediaLibrary{
     }
 }
 
-if (!(window as any).entcore) {
-    (window as any).entcore = {};
+if (!window.entcore) {
+    window.entcore = {};
 }
-(window as any).entcore.quota = quota;
+window.entcore.Folder = Folder;
+window.entcore.quota = quota;
+window.entcore.Document = Document;
+window.entcore.MediaLibrary = MediaLibrary;

@@ -9,7 +9,8 @@ export const imageEditor = ng.directive('imageEditor', () => {
     return {
         restrict: 'E',
         scope: {
-            document: '@'
+            document: '@',
+            onSave: '&'
         },
         templateUrl: '/' + appPrefix + '/public/template/entcore/image-editor/main.html',
         link: (scope, element, attributes) => {
@@ -36,7 +37,13 @@ export const imageEditor = ng.directive('imageEditor', () => {
             scope.hasHistory = () => {
                 return imageEditor.hasHistory};
             scope.undo = () => imageEditor.imageView.undo();
-            scope.save = () => imageEditor.saveChanges();
+            scope.save = async () => {
+                await imageEditor.saveChanges();
+                if(typeof scope.onSave === 'function'){
+                    scope.onSave();
+                    scope.$apply();
+                }
+            };
 
             attributes.$observe('document', () => start());
         }
