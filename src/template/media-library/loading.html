@@ -1,17 +1,23 @@
-<div class="loading-list">
-    <ul>
-        <li ng-repeat="doc in upload.documents" ng-click="display.editedDocument = doc">
-            [[doc.title]]
-            <i class="right-magnet" ng-class="{ 
-                loading: doc.status === 'loading',
-                loaded: doc.status === 'loaded',
-                failed: doc.status === 'failed'
-            }"></i>
-        </li>
-    </ul>
-</div>
-
-<div ng-if="display.editedDocument">
-    <button type="button" class="cancel" ng-click="editImage()">Retoucher l'image</button>
-    <image-compression document="display.editedDocument"></image-compression>
+<div class="split-screen" ng-class="{ split: display.editedDocument }">
+    <div class="loading-list">
+        <ul>
+            <li ng-repeat="doc in upload.documents" ng-click="openCompression(doc)" ng-class="{ 'image-file': doc.role() === 'img' }">
+                <i class="[[doc.role()]]"></i>
+                <div class="title">[[doc.title]]</div>
+                <div class="right-magnet">
+                    [[doc.size]]
+                </div>
+                <i class="right-magnet" ng-class="{ 
+                    loading: doc.status === 'loading',
+                    loaded: doc.status === 'loaded',
+                    failed: doc.status === 'failed'
+                }"></i>
+            </li>
+        </ul>
+    </div>
+    
+    <div ng-if="display.editedDocument" class="compression">
+        <button type="button" class="cancel right-magnet" ng-click="editImage()"><i18n>medialibrary.editImage</i18n></button>
+        <image-compression document="display.editedDocument"></image-compression>
+    </div>
 </div>

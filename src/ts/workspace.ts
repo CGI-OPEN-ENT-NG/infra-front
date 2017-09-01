@@ -75,9 +75,10 @@ export class Document implements Selectable {
     created: any;
     metadata: {
         'content-type': string,
-		role: string,
-        extension: string,
-        filename: string
+		role?: string,
+        extension?: string,
+        filename?: string,
+        size: number
     };
 	version: number;
 	link: string;
@@ -89,6 +90,14 @@ export class Document implements Selectable {
     revisions: Revision[];
     status: DocumentStatus;
     selected: boolean;
+
+    get size(): string{
+        const koSize = this.metadata.size / 1024;
+        if(koSize > 1024){
+            return (parseInt(koSize / 1024 * 10) / 10)  + ' Mo';
+        }
+        return Math.ceil(koSize) + ' Ko';
+    }
 
     fromJSON(data) {
         if(!data){
@@ -135,6 +144,14 @@ export class Document implements Selectable {
     upload(file: File | Blob, visibility?: 'public' | 'protected'): Promise<any> {
         if (!visibility) {
             visibility = 'protected';
+        }
+        if(!this.metadata){
+            this.metadata = { 
+                'content-type': file.type,
+                'filename': file.name,
+                size: file.size
+            };
+            this.metadata.role = this.role();
         }
         this.status = DocumentStatus.loading;
         var formData = new FormData();

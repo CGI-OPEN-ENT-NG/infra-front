@@ -14,7 +14,7 @@ module.exports = {
         modulesDirectories: ['node_modules'],
         extensions: ['', '.ts', '.js']
     },
-    devtool: "inline-source-map",
+    devtool: "source-map",
     module: {
         loaders: [
             {

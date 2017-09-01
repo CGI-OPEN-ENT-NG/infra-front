@@ -17,6 +17,8 @@ export const mediaLibrary = ng.directive('mediaLibrary', function(){
 		},
 		templateUrl: '/' + appPrefix + '/public/template/entcore/media-library/main.html',
 		link: function(scope, element, attributes){
+			scope.template = template;
+
 			scope.$watch(function(){
 				return scope.$parent.$eval(attributes.visibility);
 			}, function(newVal){
@@ -26,6 +28,13 @@ export const mediaLibrary = ng.directive('mediaLibrary', function(){
 				}
 				scope.visibility = scope.visibility.toLowerCase();
 			});
+
+			scope.openCompression = (doc: Document) => {
+				if(doc.role() !== 'img'){
+					return;
+				}
+				scope.display.editedDocument = doc;
+			};
 
 			scope.upload = {
 				documents: []
