@@ -1,8 +1,8 @@
-<div class="split-screen" ng-class="{ split: display.editedDocument }">
+<div class="split-screen" ng-class="{ split: display.editedDocument !== undefined }">
     <div class="loading-list">
         <ul>
             <li ng-repeat="doc in upload.documents" ng-click="openCompression(doc)" ng-class="{ 'image-file': doc.role() === 'img' }">
-                <i class="[[doc.role()]]"></i>
+                <i class="[[doc.role()]] cell"></i>
                 <div class="title">[[doc.title]]</div>
                 <div class="right-magnet">
                     [[doc.size]]
@@ -18,6 +18,8 @@
     
     <div ng-if="display.editedDocument" class="compression">
         <button type="button" class="cancel right-magnet" ng-click="editImage()"><i18n>medialibrary.editImage</i18n></button>
+        <div class="previous arrow"></div>
+        <div class="next arrow"></div>
         <image-compression document="display.editedDocument"></image-compression>
     </div>
 </div>

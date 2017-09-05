@@ -1,8 +1,9 @@
 import { ng } from '../ng-start';
 import { appPrefix } from '../globals';
+import { Document } from '../workspace';
 
-const canvasWidth = 680;
-const canvasHeight = 400;
+const canvasWidth = 490;
+const canvasHeight = 350;
 
 export let imageCompression = ng.directive('imageCompression', () => {
     return {
@@ -27,17 +28,21 @@ export let imageCompression = ng.directive('imageCompression', () => {
             const image = new Image();
 
             const updateCanvas = (image) => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 let top = 0;
+                let left = 0;
                 let width = image.width;
                 let ratio = 1;
                 if(image.width > canvasWidth){
                     width = canvasWidth;
                     ratio =  width / image.width;
                 }
-                if(image.height > canvasHeight){
-                    top = ((image.height * ratio) - canvasHeight) / 2
+
+                top = (((image.height / 2) * ratio) - canvasHeight / 2);
+                if(image.width < canvasWidth){
+                    left = canvasWidth / 2 - image.width * ratio;
                 }
-                ctx.drawImage(image, 0, top, width, width * image.height / image.width);
+                ctx.drawImage(image, left, top, width, width * image.height / image.width);
             }
 
             const compress = (quality: number) => {
@@ -46,6 +51,7 @@ export let imageCompression = ng.directive('imageCompression', () => {
                 }
                 updateCanvas(sourceImage);
                 canvas.toBlob((b) => {
+                    console.log(canvas.width)
                     blob = b;
                     const imageUrl = URL.createObjectURL(blob);
                     image.src = imageUrl;
@@ -95,6 +101,7 @@ export let imageCompression = ng.directive('imageCompression', () => {
 
             scope.$watch(() => scope.result.quality, () => compress(0.1));
             scope.$watch('document', () => updateImage());
+            scope.$on('$destroy', () => scope.document.update(hiddenBlob))
         }
     }
 });

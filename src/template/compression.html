@@ -1,6 +1,6 @@
 <canvas></canvas>
 
-<slider ng-model="result.quality" max="0.7" min="0.15" default="0.5" label="[[blobSize()]] [[blobUnit()]]"></slider>
+<slider ng-model="result.quality" max="0.7" min="0" default="0.5" label="[[blobSize()]] [[blobUnit()]]"></slider>
 <hr class="row" />
 
 <div class="warning" ng-if="blobUnit() === 'Mo' || blobSize() > 500 && blobUnit() === 'Mo'">

@@ -23,8 +23,8 @@ export let slider = ng.directive('slider', ['$compile', '$parse', function ($com
             element.addClass('drawing-zone');
             const cursor = element.children('.cursor');
             const label = element.children('.label');
-            const max = parseInt(attributes.max);
-            const min = parseInt(attributes.min);
+            const max = parseFloat(attributes.max);
+            const min = parseFloat(attributes.min);
 
             const applyValue = function (newVal) {
                 var pos = parseInt((newVal - min) * element.children('.bar').width() / (max - min));
