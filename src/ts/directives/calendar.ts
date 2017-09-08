@@ -37,8 +37,8 @@ export let calendarComponent = ng.directive('calendar', function () {
                     if (day.index < model.calendar.firstDay.dayOfYear()) {
                         year++;
                     }
-                    $scope.newItem.beginning = moment().utc().year(year).dayOfYear(day.index).hour(timeslot.start);
-                    $scope.newItem.end = moment().utc().year(year).dayOfYear(day.index).hour(timeslot.end);
+                    $scope.newItem.beginning = moment().year(year).dayOfYear(day.index).hour(timeslot.start).minutes(0);
+                    $scope.newItem.end = moment().year(year).dayOfYear(day.index).hour(timeslot.end).minutes(0);
                     model.calendar.newItem = $scope.newItem;
                     model.calendar.eventer.trigger('calendar.create-item');
                     $scope.onCreateOpen();
@@ -150,11 +150,11 @@ export let scheduleItem = ng.directive('scheduleItem', function () {
             var getTimeFromBoundaries = function () {
                 // compute element positon added to heiht of 7 hours ao avoid negative value side effect
                 var topPos = scheduleItemEl.position().top + (calendar.dayHeight * calendar.startOfDay);
-                var startTime = moment().utc();
+                var startTime = moment();
                 startTime.hour(Math.floor(topPos / calendar.dayHeight));
                 startTime.minute((topPos % calendar.dayHeight) * 60 / calendar.dayHeight);
 
-                var endTime = moment().utc();
+                var endTime = moment();
                 endTime.hour(Math.floor((topPos + scheduleItemEl.height()) / calendar.dayHeight));
                 endTime.minute(((topPos + scheduleItemEl.height()) % calendar.dayHeight) * 60 / calendar.dayHeight);
 
