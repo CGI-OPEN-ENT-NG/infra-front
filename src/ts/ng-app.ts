@@ -889,7 +889,7 @@ module.directive('progressBar', function(){
 	}
 });
 
-module.directive('datePicker', function(){
+module.directive('datePicker', function($compile, $timeout){
 	return {
 		scope: {
 			minDate: '=',
@@ -927,9 +927,11 @@ module.directive('datePicker', function(){
 					element.val(moment(minDate).format('DD/MM/YYYY'));
 				}
 
-				scope.$apply('ngModel');
-				scope.$parent.$eval(scope.ngChange);
-				scope.$parent.$apply();
+                $timeout(function() {
+                    scope.$apply('ngModel');
+                    scope.$parent.$eval(scope.ngChange);
+                    scope.$parent.$apply();
+                });
 			}
 
 			http().loadScript('/' + infraPrefix + '/public/js/bootstrap-datepicker.js').then(function(){
