@@ -1580,7 +1580,7 @@ module.directive('multiCombo', function() {
             deselectionEvent: '&'
         },
 		templateUrl: '/' + appPrefix + '/public/template/entcore/multi-combo.html',
-        controller: function($scope, $filter, $timeout) {
+        controller: ['$scope', '$filter', '$timeout', function($scope, $filter, $timeout) {
             /* Search input */
             $scope.search = {
                 input: '',
@@ -1667,7 +1667,7 @@ module.directive('multiCombo', function() {
                     }
                 }
             })
-        },
+        }],
         link: function(scope, element, attributes) {
             if (!attributes.comboModel || !attributes.filteredModel) {
                 throw '[<multi-combo> directive] Error: combo-model & filtered-model attributes are required.'
