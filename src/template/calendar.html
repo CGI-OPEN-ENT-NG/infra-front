@@ -10,7 +10,7 @@
 		[[calendar.firstDay.format('Do MMMM YYYY')]]
 	</span>
         <span ng-if="display.mode === 'week'">
-		<i18n>calendar.weekfrom</i18n> [[calendar.firstDay.format('DD/MM/YYYY')]] <i18n>calendar.weekto</i18n> [[moment(calendar.firstDay).add(6, 'days').format('DD/MM/YYYY')]]
+		<i18n>calendar.mode.week</i18n> [[moment(calendar.firstDay).week()]] - [[calendar.firstDay.format('DD/MM/YYYY')]] <i18n>calendar.weekto</i18n> [[moment(calendar.firstDay).add(6, 'days').format('DD/MM/YYYY')]]
 	</span>
         <span ng-if="display.mode === 'month'">
 		[[moment(calendar.firstDay).format('MMMM YYYY')]]
