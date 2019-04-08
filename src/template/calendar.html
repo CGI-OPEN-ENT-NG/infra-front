@@ -14,12 +14,16 @@
                 <i18n>calendar.mode.month</i18n>
             </button>
         </div>
+        <div ng-if="display.addFilters" class="displayModeButtons nomargin calendarOptionButtonGroup ">
+            <button ng-repeat="filter in filters" ng-class="{ cyan: filter.selected }" ng-click="filterItems(filter)">
+                    <i ng-class="filter.icon" ></i>
+            </button>
+        </div>
         <div class="calendarOptionButtonGroup nextPrevious" ng-if="display.showNextPreviousButton">
             <button ng-click="calendar.previous();">&#8592;</button>
             <button ng-click="calendar.next();">&#8594;</button>
         </div>
     </div>
-
 	<span ng-if="display.mode === 'day'">
 		[[calendar.firstDay.format('Do MMMM YYYY')]]
 	</span>

@@ -137,6 +137,7 @@ export let calendarComponent = ng.directive('calendar', function () {
             if (attributes.itemTooltipTemplate) {
                 scope.itemTooltipTemplate = attributes.itemTooltipTemplate;
             }
+            scope.filters = scope.$eval(attributes.addFilter);
 
             scope.display = {
                 readonly: false,
@@ -147,7 +148,20 @@ export let calendarComponent = ng.directive('calendar', function () {
                 saturday: false,
                 options:  attributes.displayOptions === 'true',
                 lightboxOptions: false,
-                showNextPreviousButton: attributes.showNextPreviousButton === 'true'
+                showNextPreviousButton: attributes.showNextPreviousButton === 'true',
+                addFilters : scope.filters !== undefined && typeof (scope.filters) == 'object'
+            };
+            scope.filterItems = (filter) =>{
+                filter.selected = !filter.selected;
+                scope.items = _.filter(scope.$eval(attributes.items),
+                    (item) =>{
+                        let appear = true;
+                        scope.filters.forEach( (myFilter) =>{
+                            if(myFilter.selected == true && item[myFilter.action] == false){
+                                appear = false;
+                            }
+                        });
+                        return appear});
             };
             attributes.$observe('createTemplate', function () {
                 if (attributes.createTemplate) {
