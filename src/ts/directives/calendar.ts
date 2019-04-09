@@ -137,7 +137,7 @@ export let calendarComponent = ng.directive('calendar', function () {
             if (attributes.itemTooltipTemplate) {
                 scope.itemTooltipTemplate = attributes.itemTooltipTemplate;
             }
-            scope.filters = scope.$eval(attributes.addFilter);
+            scope.filters = scope.$eval(attributes.addFilter); // {icon:"a css class",filter:"the attribute in item to filter"}
 
             scope.display = {
                 readonly: false,
@@ -151,13 +151,13 @@ export let calendarComponent = ng.directive('calendar', function () {
                 showNextPreviousButton: attributes.showNextPreviousButton === 'true',
                 addFilters : scope.filters !== undefined && typeof (scope.filters) == 'object'
             };
-            scope.filterItems = (filter) =>{
-                filter.selected = !filter.selected;
+            scope.filterItems = (filter?) =>{
+                if(filter) filter.selected = !filter.selected;
                 scope.items = _.filter(scope.$eval(attributes.items),
                     (item) =>{
                         let appear = true;
                         scope.filters.forEach( (myFilter) =>{
-                            if(myFilter.selected == true && item[myFilter.action] == false){
+                            if(myFilter.selected == true && item[myFilter.filter] == false){
                                 appear = false;
                             }
                         });
@@ -200,6 +200,7 @@ export let calendarComponent = ng.directive('calendar', function () {
                 return scope.$eval(attributes.items)
             }, function (newVal) {
                 scope.items = newVal;
+                scope.filterItems();
             });
 
         }
