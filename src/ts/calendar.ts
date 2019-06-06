@@ -118,44 +118,36 @@ export var calendar = {
 	startOfDay: 7,
 	endOfDay: 20,
 	dayHeight: 40,
-	timeslots: undefined,
-	init: function(){
-		model.makeModels(calendar);
-		model.calendar = new calendar.Calendar({ week: moment().week() });
-	},
+	customSlots: undefined,
 	getTimeslots: function (): Timeslot[] {
-    	const slots = [];
-		if (!calendar.timeslots) {
+		const slots = [];
+		if (!calendar.customSlots) {
 			for(let i = calendar.startOfDay; i < calendar.endOfDay; i++){
 				const name = `${i}h00 - ${i+1}h00`;
 				slots.push(new calendar.TimeSlot({ start: i, end: i+1, startMinutes: '00', endMinutes: '00', name }));
 			}
 		} else {
-			for (let i = 0; i < calendar.timeslots.length; i++) {
+			for (let i = 0; i < calendar.customSlots.length; i++) {
 				let slot = {
-					name: calendar.timeslots[i].name,
-					start: calendar.timeslots[i].startHour.split(':')[0],
-					startMinutes: calendar.timeslots[i].startHour.split(':')[1],
-					end: calendar.timeslots[i].endHour.split(':')[0],
-					endMinutes: calendar.timeslots[i].endHour.split(':')[1]
+					name: calendar.customSlots[i].name,
+					start: calendar.customSlots[i].startHour.split(':')[0],
+					startMinutes: calendar.customSlots[i].startHour.split(':')[1],
+					end: calendar.customSlots[i].endHour.split(':')[0],
+					endMinutes: calendar.customSlots[i].endHour.split(':')[1]
 				};
 				slots.push(new calendar.TimeSlot(slot));
 			}
 		}
-    	return slots;
+		return slots;
 	},
-	/**
-	 * Allow user to customize timeslots based on core timeslots
-	 * @param slots time slots list. Object list : { name: string, startHour: string (format "hh:mm"), endHour: string (format "hh:mm") }
-	 */
-	setTimeslots: function (slots) {
-    	this.timeslots = slots;
-    	this.init();
+	init: function(){
+		model.makeModels(calendar);
+		model.calendar = new calendar.Calendar({ week: moment().week() });
 	}
 };
 calendar.Calendar.prototype.initTimeSlots = function(){
     this.collection(calendar.TimeSlot);
-    this.timeSlots.load(calendar.getTimeslots());
+	this.timeSlots.load(calendar.getTimeslots());
 };
 calendar.Calendar.prototype.addScheduleItems = function(items){
     var schedule = this;
@@ -187,6 +179,12 @@ calendar.Calendar.prototype.setIncrement = function(incr) {
     this.setDate(this.firstDay);
 
     return this.firstDay;
+};
+
+calendar.Calendar.prototype.setTimeslots = function (slots) {
+	calendar.customSlots = slots;
+	this.days.sync();
+	this.timeSlots.load(calendar.getTimeslots());
 };
 
 calendar.Calendar.prototype.setDate = function(momentDate){

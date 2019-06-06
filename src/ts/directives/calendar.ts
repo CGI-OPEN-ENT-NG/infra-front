@@ -132,9 +132,11 @@ export let calendarComponent = ng.directive('calendar', function () {
                 refreshCalendar();
             });
 
-            $scope.$watch(() => model.calendar, () => {
-                refreshCalendar();
-                $scope.$apply();
+            $scope.$watchCollection('slots', (newVal, oldVal) => {
+                if (newVal !== oldVal) {
+                    model.calendar.setTimeslots(newVal);
+                    $scope.$apply();
+                }
             })
         }],
         link: function (scope, element, attributes) {
@@ -193,6 +195,11 @@ export let calendarComponent = ng.directive('calendar', function () {
             }, function (newVal) {
                 scope.items = newVal;
             });
+
+            scope.$watch(
+                () => scope.$eval(attributes.slots),
+                (newVal) => scope.slots = newVal
+            )
 
         }
     }
