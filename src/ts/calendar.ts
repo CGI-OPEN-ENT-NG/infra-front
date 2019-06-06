@@ -4,6 +4,14 @@ import { Eventer } from 'entcore-toolkit';
 var moment = require('moment');
 var _ = require('underscore');
 
+export interface Timeslot {
+	start: any;
+	startMinutes: any;
+	end: any;
+	endMinutes: any;
+	name: string;
+}
+
 export var calendar = {
     setCalendar: function(cal){
         model.calendar = cal;
@@ -58,9 +66,7 @@ export var calendar = {
 			}
 		});
 		this.collection(calendar.TimeSlot);
-		for(var i = calendar.startOfDay; i < calendar.endOfDay; i++){
-			this.timeSlots.push(new calendar.TimeSlot({ start: i, end: i+1 }))
-		}
+		this.timeSlots.load(calendar.getTimeslots());
 	},
 	Calendar: function(data){
 	    this.eventer = new Eventer();
@@ -107,23 +113,64 @@ export var calendar = {
 		this.days.sync();
 
 		this.collection(calendar.TimeSlot);
-		for(var i = calendar.startOfDay; i < calendar.endOfDay; i++){
-			this.timeSlots.push(new calendar.TimeSlot({ beginning: i, end: i+1 }))
-		}
+		this.timeSlots.load(calendar.getTimeslots());
 	},
+	viewTimeRange: 13,
+	firstHour: 0,
+	lastHour: 24,
 	startOfDay: 7,
 	endOfDay: 20,
 	dayHeight: 40,
+	customSlots: undefined,
+	getTimeslots: function (): Timeslot[] {
+		const slots = [];
+		if (!calendar.customSlots) {
+			calendar.firstHour = 0;
+			calendar.lastHour = 24;
+			for(let i = calendar.startOfDay; i < calendar.endOfDay; i++){
+				const name = `${i}h00 - ${i+1}h00`;
+				slots.push(new calendar.TimeSlot({ start: i, end: i+1, startMinutes: '00', endMinutes: '00', name }));
+			}
+		} else {
+			if (calendar.customSlots.length === 0) return slots;
+			const startIndex = getFirstSlotIndex(calendar.customSlots);
+			const endIndex = startIndex + calendar.viewTimeRange > calendar.customSlots.length ? calendar.customSlots.length : startIndex + calendar.viewTimeRange;
+			calendar.firstHour = parseInt(calendar.customSlots[0].startHour.split(':')[0]);
+			calendar.lastHour = parseInt(calendar.customSlots[calendar.customSlots.length - 1].endHour.split(':')[0]);
+			for (let i = startIndex; i < endIndex; i++) {
+				let start = parseInt(calendar.customSlots[i].startHour.split(':')[0]);
+				let startMinutes = parseInt(calendar.customSlots[i].startHour.split(':')[1]);
+				let end = parseInt(calendar.customSlots[i].endHour.split(':')[0]);
+				let endMinutes = parseInt(calendar.customSlots[i].endHour.split(':')[1]);
+				let slot = {
+					name: calendar.customSlots[i].name,
+					start,
+					startMinutes,
+					end,
+					endMinutes,
+				};
+				slots.push(new calendar.TimeSlot(slot));
+			}
+		}
+		return slots;
+	},
 	init: function(){
 		model.makeModels(calendar);
 		model.calendar = new calendar.Calendar({ week: moment().week() });
 	}
 };
+
+function getFirstSlotIndex (slots) {
+	for (let i = 0; i < slots.length; i++) {
+		let slotStartHour = parseInt(slots[i].startHour.split(':')[0]);
+		if (slotStartHour === calendar.startOfDay) {
+			return i;
+		}
+	}
+}
 calendar.Calendar.prototype.initTimeSlots = function(){
     this.collection(calendar.TimeSlot);
-    for(var i = calendar.startOfDay; i < calendar.endOfDay; i++){
-        this.timeSlots.push(new calendar.TimeSlot({ beginning: i, end: i+1 }))
-    }
+	this.timeSlots.load(calendar.getTimeslots());
 };
 calendar.Calendar.prototype.addScheduleItems = function(items){
     var schedule = this;
@@ -155,6 +202,24 @@ calendar.Calendar.prototype.setIncrement = function(incr) {
     this.setDate(this.firstDay);
 
     return this.firstDay;
+};
+
+calendar.Calendar.prototype.setTimeslots = function (slots) {
+	calendar.customSlots = slots;
+	this.days.sync();
+	this.setStartAndEndOfDay(slots);
+	this.timeSlots.load(calendar.getTimeslots(), false);
+};
+
+calendar.Calendar.prototype.setStartAndEndOfDay = function (slots) {
+	if (slots) {
+		calendar.startOfDay = parseInt(slots[0].startHour.split(':')[0]);
+		const lastSlot = slots.length > calendar.viewTimeRange ? slots[calendar.viewTimeRange - 1] : slots[slots.length - 1];
+		calendar.endOfDay = parseInt(lastSlot.startHour.split(':')[0]);
+	} else {
+		calendar.startOfDay = 7;
+		calendar.endOfDay = calendar.startOfDay + calendar.viewTimeRange;
+	}
 };
 
 calendar.Calendar.prototype.setDate = function(momentDate){
