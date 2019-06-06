@@ -74,8 +74,8 @@ export let calendarComponent = ng.directive('calendar', function () {
                             end: calendar.endOfDay
                         }
                     }
-                    $scope.newItem.beginning = moment().utc().year(year).dayOfYear(day.index).hour(timeslot.start);
-                    $scope.newItem.end = moment().utc().year(year).dayOfYear(day.index).hour(timeslot.end);
+                    $scope.newItem.beginning = moment().utc().year(year).dayOfYear(day.index).hour(timeslot.start).minute(timeslot.startMinutes);
+                    $scope.newItem.end = moment().utc().year(year).dayOfYear(day.index).hour(timeslot.end).minute(timeslot.endMinutes);
                     model.calendar.newItem = $scope.newItem;
                     model.calendar.eventer.trigger('calendar.create-item');
                     $scope.onCreateOpen();
@@ -93,7 +93,7 @@ export let calendarComponent = ng.directive('calendar', function () {
                 $scope.previousTimeslots = function () {
                     calendar.startOfDay--;
                     calendar.endOfDay--;
-                    model.calendar.initTimeSlots();
+                    model.calendar.initTimeSlots($scope.slots);
                     model.calendar.days.sync();
                     refreshCalendar();
                 };
@@ -101,7 +101,7 @@ export let calendarComponent = ng.directive('calendar', function () {
                 $scope.nextTimeslots = function () {
                     calendar.startOfDay++;
                     calendar.endOfDay++;
-                    model.calendar.initTimeSlots();
+                    model.calendar.initTimeSlots($scope.slots);
                     model.calendar.days.sync();
                     refreshCalendar();
                 };
@@ -131,6 +131,11 @@ export let calendarComponent = ng.directive('calendar', function () {
                 model.calendar.setIncrement($scope.display.mode);
                 refreshCalendar();
             });
+
+            $scope.$watch(() => model.calendar, () => {
+                refreshCalendar();
+                $scope.$apply();
+            })
         }],
         link: function (scope, element, attributes) {
             var allowCreate;
@@ -172,6 +177,7 @@ export let calendarComponent = ng.directive('calendar', function () {
             });
 
             scope.items = scope.$eval(attributes.items);
+            scope.slots = scope.$eval(attributes.slots);
             scope.onCreateOpen = function () {
                 if (!allowCreate) {
                     return;

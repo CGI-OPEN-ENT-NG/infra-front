@@ -35,8 +35,9 @@
 </div>
 <div class="schedule" drawing-zone ng-if="display.mode !== 'month'">
     <legend class="timeslots">
-        <div ng-repeat="timeslot in calendar.timeSlots.all" class="timeslot">
-            [[timeslot.beginning]]h00 - [[timeslot.end]]h00
+        <div ng-repeat="timeslot in calendar.timeSlots.all" class="timeslot"
+             tooltip="[[timeslot.start + 'h' + timeslot.startMinutes + ' - ' + timeslot.end + 'h' + timeslot.endMinutes]]">
+            [[timeslot.name]]
         </div>
     </legend>
     <div class="days">

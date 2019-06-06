@@ -4,6 +4,14 @@ import { Eventer } from 'entcore-toolkit';
 var moment = require('moment');
 var _ = require('underscore');
 
+export interface Timeslot {
+	start: any;
+	startMinutes: any;
+	end: any;
+	endMinutes: any;
+	name: string;
+}
+
 export var calendar = {
     setCalendar: function(cal){
         model.calendar = cal;
@@ -58,9 +66,7 @@ export var calendar = {
 			}
 		});
 		this.collection(calendar.TimeSlot);
-		for(var i = calendar.startOfDay; i < calendar.endOfDay; i++){
-			this.timeSlots.push(new calendar.TimeSlot({ start: i, end: i+1 }))
-		}
+		this.timeSlots.load(calendar.getTimeslots());
 	},
 	Calendar: function(data){
 	    this.eventer = new Eventer();
@@ -107,23 +113,49 @@ export var calendar = {
 		this.days.sync();
 
 		this.collection(calendar.TimeSlot);
-		for(var i = calendar.startOfDay; i < calendar.endOfDay; i++){
-			this.timeSlots.push(new calendar.TimeSlot({ beginning: i, end: i+1 }))
-		}
+		this.timeSlots.load(calendar.getTimeslots());
 	},
 	startOfDay: 7,
 	endOfDay: 20,
 	dayHeight: 40,
+	timeslots: undefined,
 	init: function(){
 		model.makeModels(calendar);
 		model.calendar = new calendar.Calendar({ week: moment().week() });
+	},
+	getTimeslots: function (): Timeslot[] {
+    	const slots = [];
+		if (!calendar.timeslots) {
+			for(let i = calendar.startOfDay; i < calendar.endOfDay; i++){
+				const name = `${i}h00 - ${i+1}h00`;
+				slots.push(new calendar.TimeSlot({ start: i, end: i+1, startMinutes: '00', endMinutes: '00', name }));
+			}
+		} else {
+			for (let i = 0; i < calendar.timeslots.length; i++) {
+				let slot = {
+					name: calendar.timeslots[i].name,
+					start: calendar.timeslots[i].startHour.split(':')[0],
+					startMinutes: calendar.timeslots[i].startHour.split(':')[1],
+					end: calendar.timeslots[i].endHour.split(':')[0],
+					endMinutes: calendar.timeslots[i].endHour.split(':')[1]
+				};
+				slots.push(new calendar.TimeSlot(slot));
+			}
+		}
+    	return slots;
+	},
+	/**
+	 * Allow user to customize timeslots based on core timeslots
+	 * @param slots time slots list. Object list : { name: string, startHour: string (format "hh:mm"), endHour: string (format "hh:mm") }
+	 */
+	setTimeslots: function (slots) {
+    	this.timeslots = slots;
+    	this.init();
 	}
 };
 calendar.Calendar.prototype.initTimeSlots = function(){
     this.collection(calendar.TimeSlot);
-    for(var i = calendar.startOfDay; i < calendar.endOfDay; i++){
-        this.timeSlots.push(new calendar.TimeSlot({ beginning: i, end: i+1 }))
-    }
+    this.timeSlots.load(calendar.getTimeslots());
 };
 calendar.Calendar.prototype.addScheduleItems = function(items){
     var schedule = this;
