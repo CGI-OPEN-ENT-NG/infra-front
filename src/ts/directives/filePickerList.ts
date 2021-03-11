@@ -39,6 +39,7 @@ export const filePickerList = ng.directive('filePickerList', () => {
 			
 			scope.picked = {};
 			scope.filesArray = [];
+			scope.listFiles(scope.files);
 
 			$('body').on('dragenter', '.icons-view', (e) => e.preventDefault());
 			$('body').on('dragover', '.icons-view', (e) => e.preventDefault());
