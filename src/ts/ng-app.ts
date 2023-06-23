@@ -645,9 +645,15 @@ module.directive('portal', ['$compile','tracker', function($compile,tracker){
 		restrict: 'E',
 		transclude: true,
 		templateUrl: function(element, attributes) { return attributes.templateUrl ? attributes.templateUrl : skin.portalTemplate },
-		compile: function(element, attributes, transclude){
+		compile: async function (element, attributes, transclude) {
 			// Initialize any configured tracker
 			tracker.init();
+
+			if (await Me.hasWorkflowRight("chatbot.access")) {
+				Behaviours.loadBehaviours('chatbot', function () {
+					Behaviours.applicationsBehaviours.chatbot.chatbot.init();
+				});
+			}
 
 			$("html").addClass("portal-container")
 			element.find('[logout]').attr('href', '/auth/logout?callback=' + skin.logoutCallback);
@@ -696,7 +702,7 @@ module.directive('portal', ['$compile','tracker', function($compile,tracker){
 						</infotip>
 					</div>
 				`;
-				element.prepend( $compile(bannerCode)(scope) );
+				element.prepend($compile(bannerCode)(scope));
 			};
 		}
 	}
