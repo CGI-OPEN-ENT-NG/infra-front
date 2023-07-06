@@ -61,7 +61,7 @@ export interface SharePanelScope {
     closeDelegate?(args: ShareCloseDelegate)
     onCancel?()
     onSubmit?(args: { $shared: SharePayload })
-    onFailure?(args: { $error : any})
+    onFailure?(args: { $error : JQueryXHR})
     onFeed?(args: {
         $data: SharePayload,
         $resource: ShareableWithId,
